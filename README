@@ -46,7 +46,7 @@ zookeeper.port=2181
 #Kafka Topic to consume 
 kafka.topic=some-topic
 
-# Blur Kafka Consumer ID. This ID will be ised for storing fetched offset details in $zookeeper.blur.consumer.path
+# Blur Kafka Consumer ID. This ID will be used for storing fetched offset details in $zookeeper.blur.consumer.path
 kafka.blur.consumer.id=some-id
 
 # Blur Connection Details
@@ -62,7 +62,7 @@ Running Kafka Blur Consumer
 ===========================
 Let assume your Indexing logic (The implementation of blur.kafka.client.IIndexer interface) is in blur-indexer.jar
 
-java -cp "<Path.To>/blur-indexer/blur-indexer.jar:<Path.To>/kafka-blur-consumer-0.0.1-SNAPSHOT-jar-with-dependencies.jar" blur.kafka.client.KafkaBlurConsumer -P <Path.To>/blur-kafka.properties
+java -cp "<Path.To>/blur-indexer.jar:<Path.To>/kafka-blur-consumer-0.0.1-SNAPSHOT-jar-with-dependencies.jar" blur.kafka.client.KafkaBlurConsumer -P <Path.To>/blur-kafka.properties
 
 -P external properties filename
 -p properties filename from the classpath
