@@ -1,0 +1,73 @@
+README file for Kafka-Blur Consumer
+===================================
+
+This utility will help to pull messages from Kafka Cluster and Index into target Apache Blur Cluster.
+Kafka-Blur consumer will detect the number of Partitions for a Kafka Topic and spawn that many threads to index messages into Target Blur Table.
+Kafka-Blur Consumer uses Blur Thrift Client's enqueueMutate which is built for real time indexing into Blur Cluster.
+Kafka-Blur Consumer uses Zookeeper for storing the latest offset of the indexed messages, which will help to recover in case of failure .
+
+The indexing logic ( Creation of RowMutation )  is pluggable and you can define your own indexing logic for Kafka messages for target Blur table.
+
+Following are the instructions to build and deploy
+==================================================
+
+>git clone
+
+>cd kafka-blur-consumer
+
+Push the blur-thrift-0.2.2-incubating-SNAPSHOT.jar and blur-util-0.2.2-incubating-SNAPSHOT.jar into Repo
+
+>mvn install:install-file -DgroupId=org.apache.blur -DartifactId=blur-thrift -Dversion=0.2.2-incubating-SNAPSHOT -Dpackaging=jar -Dfile=lib/blur-thrift-0.2.2-incubating-SNAPSHOT.jar
+>mvn install:install-file -DgroupId=org.apache.blur -DartifactId=blur-util -Dversion=0.2.2-incubating-SNAPSHOT -Dpackaging=jar -Dfile=lib/blur-util-0.2.2-incubating-SNAPSHOT.jar
+
+Build and Package
+
+>mvn package
+
+this will generate kafka-blur-consumer-0.0.1-SNAPSHOT-jar-with-dependencies.jar under kafka-blur-consumer/target location
+
+This utility will use external property file (or property file in Classpath) to read the following configurations. All are mandatory.
+
+blur-kafka.properties
+=====================
+
+# Kafka-0.8 Broker path in ZK 
+zookeeper.broker.path=/brokers
+
+#ZK Path for storing Kafka Blur Consumer offset
+zookeeper.blur.consumer.path=/kafka-blur
+
+#ZK host details
+zookeeper.hosts=localhost
+
+#ZK Port
+zookeeper.port=2181
+
+#Kafka Topic to consume 
+kafka.topic=some-topic
+
+# Blur Kafka Consumer ID. This ID will be ised for storing fetched offset details in $zookeeper.blur.consumer.path
+kafka.blur.consumer.id=some-id
+
+# Blur Connection Details
+blur.controller.connection=localhost:40010
+
+# Blur Indexer Class. This must implements blur.kafka.client.IIndexer and define the logic for RowMutation
+blur.indexer.class=my.indexer.BlurIndexer
+
+#Blur Table name which will be indexed
+blur.table.name=some-table
+
+Running Kafka Blur Consumer
+===========================
+Let assume your Indexing logic (The implementation of blur.kafka.client.IIndexer interface) is in blur-indexer.jar
+
+java -cp "<Path.To>/blur-indexer/blur-indexer.jar:<Path.To>/kafka-blur-consumer-0.0.1-SNAPSHOT-jar-with-dependencies.jar" blur.kafka.client.KafkaBlurConsumer -P <Path.To>/blur-kafka.properties
+
+-P external properties filename
+-p properties filename from the classpath
+
+This will start parallel indexing of all Kafka Partitions for a given topic into target Blur Table.
+
+
+ 
